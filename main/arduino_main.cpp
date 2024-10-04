@@ -92,8 +92,38 @@ void loop() {
     }
 
     // TODO: Write your periodic code here
-        int zero = maze();
+        maze(); //want to connect specific buttons on controller to toggle each autonomous mode
+        color();
+        line();
+
     vTaskDelay(1);
+}
+
+void color(){
+    //Code for color sensor goes here, see pseudocode below:
+    /*
+    void detectTarget(){
+        Detect first color, store as "target color"
+        set RGB LED to red (if we buy one)
+        move forward until detected color is no longer target color
+        colorMV(target color)
+    }
+   
+    bool colorMV(int target color){
+    Move forward a designated distance (depends on spacing of tiles)
+    check current color:
+        If current color = target color, return true;
+        else if current color != target color, call colorMV(target color);
+        else: cout << "error detecting color";
+
+    detectTarget();
+    */
+   return;
+}
+
+void line(){
+    //Line follow code should go here
+    return;
 }
 
 int maze(){
