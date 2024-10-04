@@ -27,6 +27,20 @@ limitations under the License.
 #include <QTRSensors.h>
 
 GamepadPtr myGamepads[BP32_MAX_GAMEPADS];
+const int plsensor;
+const int prsensor;
+const int plservo;
+const int prservo;
+
+const double bestdistance = 2;
+const int maxspd = 180;
+const int minspd = 0;
+
+Servo left;
+Servo right;
+#define model GP2Y0A21YK0F;
+ESP32SharpIR leftSensor(GP2Y0A21YK0F,  22);
+ESP32SharpIR rightSensor(GP2Y0A21YK0F, 21);
 
 // This callback gets called any time a new gamepad is connected.
 void onConnectedGamepad(GamepadPtr gp) {
@@ -78,6 +92,48 @@ void loop() {
     }
 
     // TODO: Write your periodic code here
-
+        int zero = maze();
     vTaskDelay(1);
+}
+
+int maze(){
+    bool avoidBurst = false;
+    float leftdist = leftSensor.getDistance(avoidBurst);
+    float rightdist = rightSensor.getDistance(avoidBurst);
+
+    //LEFT TURN PROTOCOL
+    if(leftdist-rightdist >= 0.5){
+        turnleft();
+        delay(20);
+        maze();
+    }
+
+    if(rightdist-leftdist>=.5){
+        turnright();
+        delay(20);
+        maze();
+    }
+
+    //FORWARD PROTOCOL
+    if(abs(leftdist-rightdist) < 0.5){
+        forward();
+        delay(250);
+        maze();
+    }
+    return 0;
+}
+
+void forward(){
+    left.write(maxspd);
+    right.write(maxspd);
+}
+
+void turnleft(){
+    left.write(maxspd);
+    right.write(maxspd*.5);
+}
+
+void turnright(){
+    left.write(maxspd*.5);
+    right.write(maxspd);
 }
