@@ -27,10 +27,10 @@ limitations under the License.
 #include <QTRSensors.h>
 
 GamepadPtr myGamepads[BP32_MAX_GAMEPADS];
-const int plsensor;
-const int prsensor;
-const int plservo;
-const int prservo;
+const int plsensor = 26;
+const int prsensor = 27;
+const int plservo = 32;
+const int prservo = 33;
 
 const double bestdistance = 2;
 const int maxspd = 180;
