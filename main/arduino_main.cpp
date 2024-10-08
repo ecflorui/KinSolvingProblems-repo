@@ -25,17 +25,6 @@ limitations under the License.
 #include <ESP32Servo.h>
 #include <ESP32SharpIR.h>
 #include <QTRSensors.h>
-#include "sdkconfig.h"
-#ifndef CONFIG_BLUEPAD32_PLATFORM_ARDUINO
-#error "Must only be compiled when using Bluepad32 Arduino platform"
-#endif  // !CONFIG_BLUEPAD32_PLATFORM_ARDUINO
-
-#include <Arduino.h>
-#include <Bluepad32.h>
-
-#include <ESP32Servo.h>
-#include <ESP32SharpIR.h>
-#include <QTRSensors.h>
 
 #include <Arduino_APDS9960.h>
 #include <bits/stdc++.h>
@@ -55,11 +44,7 @@ const double bestdistance = 2;
 const int maxspd = 180;
 const int minspd = 0;
 
-Servo left;
-Servo right;
-#define model GP2Y0A21YK0F;
-ESP32SharpIR leftSensor(GP2Y0A21YK0F,  22);
-ESP32SharpIR rightSensor(GP2Y0A21YK0F, 21);
+Servo servo;
 
 // This callback gets called any time a new gamepad is connected.
 void onConnectedGamepad(GamepadPtr gp) {
@@ -86,80 +71,15 @@ void onDisconnectedGamepad(GamepadPtr gp) {
 
 
 
-void color(){
-    //Code for color sensor goes here, see pseudocode below:
-    /*
-    void detectTarget(){
-        Detect first color, store as "target color"
-        set RGB LED to red (if we buy one)
-        move forward until detected color is no longer target color
-        colorMV(target color)
-    }
-   
-    bool colorMV(int target color){
-    Move forward a designated distance (depends on spacing of tiles)
-    check current color:
-        If current color = target color, return true;
-        else if current color != target color, call colorMV(target color);
-        else: cout << "error detecting color";
-
-    detectTarget();
-    */
-   return;
-}
-
-void line(){
-    //Line follow code should go here
-    return;
-}
-
-int maze(){
-    bool avoidBurst = false;
-    float leftdist = leftSensor.getDistance(avoidBurst);
-    float rightdist = rightSensor.getDistance(avoidBurst);
-
-    //LEFT TURN PROTOCOL
-    if(leftdist-rightdist >= 0.5){
-        turnleft();
-        delay(20);
-        maze();
-    }
-
-    if(rightdist-leftdist>=.5){
-        turnright();
-        delay(20);
-        maze();
-    }
-
-    //FORWARD PROTOCOL
-    if(abs(leftdist-rightdist) < 0.5){
-        forward();
-        delay(250);
-        maze();
-    }
-    return 0;
-}
-
-void forward(){
-    left.write(maxspd);
-    right.write(maxspd);
-}
-
-void turnleft(){
-    left.write(maxspd);
-    right.write(maxspd*.5);
-}
-
-void turnright(){
-    left.write(maxspd*.5);
-    right.write(maxspd);
-}
-
 // Arduino setup function. Runs in CPU 1
 void setup() {
     // Setup the Bluepad32 callbacks
     BP32.setup(&onConnectedGamepad, &onDisconnectedGamepad);
     BP32.forgetBluetoothKeys();
+
+    servo.attach(15);
+
+    Servo.begin(115200);
 
     ESP32PWM::allocateTimer(0);
 	ESP32PWM::allocateTimer(1);
@@ -177,9 +97,15 @@ void loop() {
         GamepadPtr myGamepad = myGamepads[i];
         if (myGamepad && myGamepad->isConnected()) {
             // TODO: Write your controller code here
-
+            if(controller->l1() ==1){
+                Serial.print("Servo move");
+                servo.write(1000);
+            }
+            if(controller->l1()==0){
+                Serial.print("Servo stop");
+                servo.write(1500);
+            }
         }
     }
-
     vTaskDelay(1);
 }
