@@ -16,6 +16,8 @@
 
 #define IN1 12
 #define IN2 14
+#define IN3 25
+#define IN4 33
 
 Servo servo;
 
@@ -53,6 +55,8 @@ void setup() {
     // motor controller outputs
     pinMode(IN1, OUTPUT);
     pinMode(IN2, OUTPUT);
+    pinMode(IN3, OUTPUT);
+    pinMode(IN4, OUTPUT);
    
     Serial.begin(115200);
 }
@@ -67,6 +71,10 @@ void loop() {
                 Serial.print("Servo move");
                 servo.write(1000);
             }
+             if (controller->r1() == 1) {
+                Serial.print("Servo move");
+                servo.write(-1000);
+            }
             if (controller->l1() == 0) {
                 Serial.print("Servo stop");
                 servo.write(1500);
@@ -76,12 +84,19 @@ void loop() {
                 Serial.println(" DC motor move");
                 digitalWrite(IN1, LOW);
                 digitalWrite(IN2, HIGH);
+                digitalWrite(IN3, LOW);
+                digitalWrite(IN4, HIGH);
             }
             if(controller->axisRY() == 0) { // stop motor 1
                 Serial.println(" DC motor stop");
                 digitalWrite(IN1, LOW);
                 digitalWrite(IN2, LOW);
+                digitalWrite(IN3, LOW);
+                digitalWrite(IN4, LOW);
             }
+
+           
+           
 
             // PHYSICAL BUTTON A
             if (controller->b()) {
