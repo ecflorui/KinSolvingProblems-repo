@@ -23,6 +23,49 @@
 
 #define MODE 1 //Mode 1 is used to test get color using sensor, Mode 2 is used to test color detection
 
+TwoWire I2C_0 = TwoWire(0);
+APDS9960 apds = APDS9960(I2C_0, APDS9960_INT);
+
+
+int detect() {
+    int r, g, b, a;
+    // Wait until color is read from the sensor 
+    while (!apds.colorAvailable()) { delay(5); }
+    apds.readColor(r, g, b, a);
+    // Read color from sensor apds.readColor(r, g, b, a);
+    // Print color in decimal 
+    Serial.print("RED: ");
+    Serial.print(r);
+    Serial.print(" GREEN: ");
+    Serial.print(g);
+    Serial.print(" BLUE: ");
+    Serial.print(b);
+    Serial.print(" AMBIENT: ");
+    Serial.println(a);
+    delay(100);
+    return (0);
+}
+
+int compare() {
+    int r, g, b, a;
+    apds.readColor(r, g, b, a);
+    //set variable to whatever we need to compared the detected values with
+    int rc, gc, bc, ac;
+    rc = 100;
+    gc = 100;
+    bc = 100;
+    ac = 100;
+    //set a margin of acceptability
+    int mar = 25;
+
+    if ((abs(rc-r) <= mar) && (abs(bc-b) <= mar) && (abs(gc-g) <= mar)) {
+        Serial.print("Color Detected");
+    }
+
+    delay(100);
+    return 0;
+}
+
 void setup() {
     //sets up I2C protocol; no need to worry about how it works, just used to pull info from the color sensor
     I2C_0.begin(I2C_SDA, I2C_SCL, I2C_FREQ);
@@ -41,42 +84,4 @@ void loop() {
    if (MODE == 2) {
     compare();
    }
-}
-
-int detect() {
-    int r, g, b, a;
-    // Wait until color is read from the sensor 
-    while (!apds.colorAvailable()) { delay(5); }
-    apds.readColor(r, g, b, a);
-    // Read color from sensor apds.readColor(r, g, b, a);
-    // Print color in decimal 
-    Serial.print("RED: ");
-    Serial.print(r);
-    Serial.print(" GREEN: ");
-    Serial.print(g);
-    Serial.print(" BLUE: ");
-    Serial.print(b);
-    Serial.print(" AMBIENT: ");
-    Serial.println(a);
-    delay(100);
-    return (0)
-}
-
-int compare() {
-    int r, g, b, a;
-    //set variable to whatever we need to compared the detected values with
-    int rc, gc, bc, ac;
-    rc = 100;
-    gc = 100;
-    bc = 100;
-    //set a margin of acceptability
-    mar = 25;
-
-    if ((abs(rc-r) <= mar) && (abs(bc-b) <= mar) && (abs(gc-g) <= mar)) {
-        Serial.print("Color Detected");
-    }
-    else {
-        continue;
-    }
-    delay(100);
 }

@@ -25,6 +25,25 @@ limitations under the License.
 #include <ESP32Servo.h>
 #include <ESP32SharpIR.h>
 #include <QTRSensors.h>
+#include "sdkconfig.h"
+#ifndef CONFIG_BLUEPAD32_PLATFORM_ARDUINO
+#error "Must only be compiled when using Bluepad32 Arduino platform"
+#endif  // !CONFIG_BLUEPAD32_PLATFORM_ARDUINO
+
+#include <Arduino.h>
+#include <Bluepad32.h>
+
+#include <ESP32Servo.h>
+#include <ESP32SharpIR.h>
+#include <QTRSensors.h>
+
+#include <Arduino_APDS9960.h>
+#include <bits/stdc++.h>
+
+#define APDS9960_INT 2
+#define I2C_SDA 21
+#define I2C_SCL 22
+#define I2C_FREQ 100000
 
 GamepadPtr myGamepads[BP32_MAX_GAMEPADS];
 const int plsensor = 26;
@@ -65,39 +84,7 @@ void onDisconnectedGamepad(GamepadPtr gp) {
     }
 }
 
-// Arduino setup function. Runs in CPU 1
-void setup() {
-    // Setup the Bluepad32 callbacks
-    BP32.setup(&onConnectedGamepad, &onDisconnectedGamepad);
-    BP32.forgetBluetoothKeys();
 
-    ESP32PWM::allocateTimer(0);
-	ESP32PWM::allocateTimer(1);
-	ESP32PWM::allocateTimer(2);
-	ESP32PWM::allocateTimer(3);
-
-    // TODO: Write your setup code here
-}
-
-// Arduino loop function. Runs in CPU 1
-void loop() {
-    BP32.update();
-
-    for (int i = 0; i < BP32_MAX_GAMEPADS; i++) {
-        GamepadPtr myGamepad = myGamepads[i];
-        if (myGamepad && myGamepad->isConnected()) {
-            // TODO: Write your controller code here
-
-        }
-    }
-
-    // TODO: Write your periodic code here
-        maze(); //want to connect specific buttons on controller to toggle each autonomous mode
-        color();
-        line();
-
-    vTaskDelay(1);
-}
 
 void color(){
     //Code for color sensor goes here, see pseudocode below:
@@ -166,4 +153,33 @@ void turnleft(){
 void turnright(){
     left.write(maxspd*.5);
     right.write(maxspd);
+}
+
+// Arduino setup function. Runs in CPU 1
+void setup() {
+    // Setup the Bluepad32 callbacks
+    BP32.setup(&onConnectedGamepad, &onDisconnectedGamepad);
+    BP32.forgetBluetoothKeys();
+
+    ESP32PWM::allocateTimer(0);
+	ESP32PWM::allocateTimer(1);
+	ESP32PWM::allocateTimer(2);
+	ESP32PWM::allocateTimer(3);
+
+    // TODO: Write your setup code here
+}
+
+// Arduino loop function. Runs in CPU 1
+void loop() {
+    BP32.update();
+
+    for (int i = 0; i < BP32_MAX_GAMEPADS; i++) {
+        GamepadPtr myGamepad = myGamepads[i];
+        if (myGamepad && myGamepad->isConnected()) {
+            // TODO: Write your controller code here
+
+        }
+    }
+
+    vTaskDelay(1);
 }
